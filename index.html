@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro Sorteo</title>
+    <style>
+        /* Estilo general */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: url('https://static.vecteezy.com/system/resources/previews/024/262/885/non_2x/christmas-dark-background-illustration-ai-generative-free-photo.jpg') no-repeat center center fixed;
+            background-size: cover;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        /* Contenedor principal */
+        .container {
+            background: rgba(0, 0, 0, 0.7);
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            width: 90%;
+            max-width: 400px;
+        }
+
+        h1 {
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+            color: #f0f0f0;
+        }
+
+        /* Estilos del formulario */
+        form label {
+            display: block;
+            margin-bottom: 0.5rem;
+            text-align: left;
+            color: #ddd;
+        }
+
+        form input {
+            width: 100%;
+            padding: 0.5rem;
+            margin-bottom: 1rem;
+            border: none;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+            outline: none;
+        }
+
+        form input::placeholder {
+            color: #ccc;
+        }
+
+        form button {
+            background: #ff6b6b;
+            color: #fff;
+            padding: 0.7rem 1.5rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.3s;
+        }
+
+        form button:hover {
+            background: #ff4c4c;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+        }
+
+        .modal-content {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 2rem;
+            border-radius: 10px;
+            text-align: center;
+            color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content button {
+            margin-top: 1rem;
+            background: #af534c;
+            color: #fff;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .modal-content button:hover {
+            background: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <!-- Contenedor principal -->
+    <div class="container">
+        <h1>Registro para el Sorteo</h1>
+        <form id="registro-form">
+            <label for="nombre">Nombre y Apellido:</label>
+            <input type="text" id="nombre" required><br><br>
+
+            <label for="direccion">Dirección:</label>
+            <input type="text" id="direccion" required><br><br>
+
+            <label for="ciudad">Ciudad:</label>
+            <input type="text" id="ciudad" required><br><br>
+
+            <label for="telefono">Teléfono:</label>
+            <input type="tel" id="telefono" required><br><br>
+
+            <button type="submit">Registrarse</button>
+        </form>
+    </div>
+
+    <!-- Modal -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <p id="modal-message">¡Registro exitoso!</p>
+            <button id="close-modal">Cerrar</button>
+        </div>
+    </div>
+
+    <!-- Firebase y JavaScript -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
+        import { getDatabase, ref, push, set } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-database.js";
+
+        // Configuración de Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyAcS74zdZX179BbttsAkq1niKzwDM0zHvA",
+            authDomain: "appsorteo-9c1f8.firebaseapp.com",
+            databaseURL: "https://appsorteo-9c1f8-default-rtdb.firebaseio.com",
+            projectId: "appsorteo-9c1f8",
+            storageBucket: "appsorteo-9c1f8.firebasestorage.app",
+            messagingSenderId: "521986582503",
+            appId: "1:521986582503:web:25f5b4b1c875c34a743f42",
+            measurementId: "G-HT26BGEDYT"
+        };
+
+        // Inicializar Firebase
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+        // Modal
+        const modal = document.getElementById('modal');
+        const modalMessage = document.getElementById('modal-message');
+        const closeModal = document.getElementById('close-modal');
+
+        // Evento para cerrar el modal
+        closeModal.addEventListener('click', () => {
+            modal.style.display = 'none';
+        });
+
+        // Capturar el formulario y enviar datos a Firebase
+        document.getElementById('registro-form').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const nombre = document.getElementById('nombre').value;
+            const direccion = document.getElementById('direccion').value;
+            const ciudad = document.getElementById('ciudad').value;
+            const telefono = document.getElementById('telefono').value;
+
+            const nuevoRegistroRef = push(ref(database, 'registros/'));
+            set(nuevoRegistroRef, {
+                nombre: nombre,
+                direccion: direccion,
+                ciudad: ciudad,
+                telefono: telefono
+            })
+            .then(() => {
+                modalMessage.textContent = '¡Te has registrado con éxito, Mucha suerte y Felices fiestas!';
+                modal.style.display = 'flex';
+                document.getElementById('registro-form').reset();
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                modalMessage.textContent = 'Hubo un error al registrarse.';
+                modal.style.display = 'flex';
+            });
+        });
+    </script>
+</body>
+</html>
